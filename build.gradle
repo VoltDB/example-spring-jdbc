@@ -1,0 +1,80 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (C) 2008-2015 VoltDB Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'application'
+
+group = 'org.voltdb.example'
+version = '1.0-SNAPSHOT'
+
+description = """VoltDB Sample using spring JDBC"""
+mainClassName = "org.voltdb.example.springjdbc.SpringJDBCTemplateTest"
+applicationName = "spring-jdbc-test"
+
+repositories {
+
+     maven { url "http://repo.maven.apache.org/maven2" }
+}
+dependencies {
+    compile group: 'org.voltdb', name: 'voltdbclient', version:'5.2'
+    compile group: 'org.springframework', name: 'spring-jdbc', version:'3.1.1.RELEASE'
+    compile group: 'org.springframework', name: 'spring-context', version:'3.1.1.RELEASE'
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'org.voltdb.example.springjdbc.SpringJDBCTemplateTest'
+    }
+}
+
+tasks.withType(Tar) {
+    compression = Compression.GZIP
+}
+
+distZip {
+    archiveName applicationName + '-' + version + '.zip'
+}
+
+startScripts {
+    outputDir = new File(project.buildDir, 'scripts')
+    classpath = jar.outputs.files + project.configurations.runtime
+    defaultJvmOpts = [
+        '-server',
+        '-Djava.awt.headless=true',
+        '-Dlog4j.configuration=file:__APP_HOME__/conf/log4j.properties'
+    ]
+    doLast {
+        unixScript.text = unixScript.text.replace('__APP_HOME__', '\$APP_HOME')
+        windowsScript.text = windowsScript.text.replace('__APP_HOME__', '%~dp0..')
+    }
+}
+
+// Support "run" task command line arguments via -Drun.args="ARGS ...".
+run {
+    if (System.getProperty("run.args") != null) {
+        args System.getProperty("run.args").split()
+    }
+}
+
