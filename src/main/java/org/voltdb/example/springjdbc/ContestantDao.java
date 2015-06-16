@@ -28,8 +28,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.List;
-import java.util.Map;
 import javax.sql.DataSource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -37,17 +37,15 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 
 public class ContestantDao extends NamedParameterJdbcTemplate {
-    private Map<String, String> sqlStrings;
-    public void setSqlStrings(Map<String, String> sqlStrings) {
-        this.sqlStrings = sqlStrings;
-    }
-    protected String getSql(String name) {
-        String queryStr = sqlStrings.get(name);
-        if (queryStr == null || queryStr.trim().equals("")) {
-            throw new RuntimeException("Query string does not exist for: " + name);
-        }
-        return queryStr;
-    }
+    private static final String selectSql = "SELECT firstname AS firstName, lastname AS lastName, code AS code FROM CONTESTANTS WHERE code = :code";
+    private static final String getAllSql = "SELECT firstname AS firstName, lastname AS lastName, code AS code FROM CONTESTANTS";
+    private static final String deleteByCode = "DELETE FROM CONTESTANTS WHERE code = :code";
+    private static final String deleteAll = "DELETE FROM CONTESTANTS";
+    private static final String insertContestant = "INSERT INTO CONTESTANTS ( FIRSTNAME,LASTNAME,CODE) VALUES ( :firstName, :lastName, :code )";
+    private static final String updateContestantByCode = "UPDATE CONTESTANTS SET firstname = :firstName, lastname  = :lastName WHERE code = :code";
+
+    @Autowired
+    private DataSource dataSource;
 
     public ContestantDao(DataSource source) {
         super(source);
@@ -70,23 +68,23 @@ public class ContestantDao extends NamedParameterJdbcTemplate {
     public List<ContestantData> findContestant(String code) {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("code", new SqlParameterValue(Types.VARCHAR, code));
-        return query( getSql("findContestantByCode"), params, new ContestantRowMapper());
+        return query( selectSql, params, new ContestantRowMapper());
     }
 
     public List<ContestantData> getAllContestants() {
         MapSqlParameterSource params = new MapSqlParameterSource();
-        return query( getSql("getAllContestants"), params, new ContestantRowMapper());
+        return query( getAllSql, params, new ContestantRowMapper());
     }
 
     public int deleteAllContestants() {
         MapSqlParameterSource params = new MapSqlParameterSource();
-        return update( getSql("deleteAllContesants"), params);
+        return update( deleteAll, params);
     }
 
     public int deleteContestant(String code) {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("code", new SqlParameterValue(Types.VARCHAR, code));
-        return update( getSql("deleteContestantByCode"), params);
+        return update( deleteByCode, params);
     }
 
     public int insertContestant(String firstName, String lastName, String code) {
@@ -95,7 +93,7 @@ public class ContestantDao extends NamedParameterJdbcTemplate {
         params.addValue("lastName", new SqlParameterValue(Types.VARCHAR, lastName));
         params.addValue("code", new SqlParameterValue(Types.VARCHAR, code));
 
-        return update( getSql("insertContestant"), params);
+        return update( insertContestant, params);
     }
 
     public int updateContestant(String firstName, String lastName, String code) {
@@ -104,7 +102,7 @@ public class ContestantDao extends NamedParameterJdbcTemplate {
         params.addValue("lastName", new SqlParameterValue(Types.VARCHAR, lastName));
         params.addValue("code", new SqlParameterValue(Types.VARCHAR, code));
 
-        return update( getSql("updateContestantByCode"), params);
+        return update( updateContestantByCode, params);
     }
 
 }

@@ -39,8 +39,8 @@ repositories {
 }
 dependencies {
     compile group: 'org.voltdb', name: 'voltdbclient', version:'5.2'
-    compile group: 'org.springframework', name: 'spring-jdbc', version:'3.1.1.RELEASE'
-    compile group: 'org.springframework', name: 'spring-context', version:'3.1.1.RELEASE'
+    compile group: 'org.springframework', name: 'spring-jdbc', version:'4.1.6.RELEASE'
+    compile group: 'org.springframework', name: 'spring-context', version:'4.1.6.RELEASE'
 }
 
 jar {
