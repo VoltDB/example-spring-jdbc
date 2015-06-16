@@ -34,11 +34,10 @@ mainClassName = "org.voltdb.example.springjdbc.SpringJDBCTemplateTest"
 applicationName = "spring-jdbc-test"
 
 repositories {
-
-     maven { url "http://repo.maven.apache.org/maven2" }
+    mavenCentral()
 }
 dependencies {
-    compile group: 'org.voltdb', name: 'voltdbclient', version:'5.2'
+    compile group: 'org.voltdb', name: 'voltdbclient', version:'latest.release'
     compile group: 'org.springframework', name: 'spring-jdbc', version:'4.1.6.RELEASE'
     compile group: 'org.springframework', name: 'spring-context', version:'4.1.6.RELEASE'
 }
